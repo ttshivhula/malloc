@@ -135,13 +135,18 @@ void	*ft_malloc(size_t size)
 void	print_blocks(t_block *b)
 {
 	int i = 1;
-	printf("Created blocks\n");
+	int	free = b->area->cur_free;
+	int	free_bytes = 0;
+	printf("-- Created blocks --\n");
 	while (b)
 	{
 		printf("%d.  size: %d free: %d addr: %p\n", i, b->size, b->free, b);
+		if (b->free)
+			free_bytes += b->size;
 		i++;
 		b = b->next;
 	}
+	printf("free blocks: %d total bytes: %d\n", free, free_bytes);
 }
 
 int	main(void)
@@ -168,6 +173,9 @@ int	main(void)
 	printf("block : %d\n", sizeof(t_block));
 	while (++i < 3000)
 		ft_malloc(3250);
+/*	i = -1;
+	while (++i < 5000)
+		ft_malloc(1);*/
 	char	*p = ft_malloc(4);
 	if(p)
 		printf("Allocated\n");
