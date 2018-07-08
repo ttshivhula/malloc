@@ -6,7 +6,7 @@
 /*   By: ttshivhu <marvin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/08 12:32:47 by ttshivhu          #+#    #+#             */
-/*   Updated: 2018/07/08 16:43:40 by ttshivhu         ###   ########.fr       */
+/*   Updated: 2018/07/08 17:47:19 by ttshivhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct		s_block
 	struct s_block	*next;
 	struct s_area	*area;
 	int				free;
+	char				data[1];
 }					t_block;
 
 typedef struct		s_area

@@ -96,18 +96,18 @@ void	*use_block(size_t size, t_block *block)
 		leftover = (int)block->size - (int)size;
 		block->free = 0;
 		ptr = (void*)block + sizeof(t_block);
-		/*if ((leftover - (int)sizeof(t_block)) > 0)
+		if (((leftover - (int)sizeof(t_block)) > 0))
 		{
 			block->area->max_allocs++;
 			block->size = size;
 			temp = block->next;
-			block->next = (t_block*)(block + (size + sizeof(t_block)));
+			block->next = (t_block*)(block->data + size);
 			block->next->size = leftover - sizeof(t_block);
 			block->next->next = temp;
 			block->next->area = block->area;
 			block->next->free = 1;
 		}
-		else*/
+		else
 			block->area->cur_free--;
 		return (ptr);
 	}
@@ -133,6 +133,18 @@ void	*ft_malloc(size_t size)
 	return (NULL);
 }
 
+void	print_blocks(t_block *b)
+{
+	int i = 1;
+	printf("Created blocks\n");
+	while (b)
+	{
+		printf("%d.  size: %d free: %d addr: %p\n", i, b->size, b->free, b);
+		i++;
+		b = b->next;
+	}
+}
+
 int	main(void)
 {
 	char	*s = ft_malloc(1000);
@@ -155,12 +167,13 @@ int	main(void)
 	printf("%p\n", &s);
 	i = -1;
 	printf("block : %d\n", sizeof(t_block));
-	while (++i < 500000)
-		ft_malloc(1);
-	char	*p = ft_malloc(4096);
+	while (++i < 250)
+		ft_malloc(3250);
+	char	*p = ft_malloc(4);
 	if(p)
 		printf("Allocated\n");
 	else
 		printf("Not allocated\n");
+	print_blocks(g_m->tiny->blocks);
 	return (0);
 }
