@@ -5,16 +5,18 @@ static void	*ft_mmap(size_t size)
 	void	*ptr;
 
 	ptr = mmap(0, size, PROT_READ | PROT_WRITE,
-		   MAP_ANON | MAP_PRIVATE, -1, 0);
+		   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	return (ptr);
 }
 
-static void	create_blocks(t_area **b, int space_size, size_t i)
+static void	create_blocks(t_area **b, int space_size)
 {
 	t_block	*cur;
 	t_block	*next;
 	t_area	*area;
+	size_t	i;
 
+	i = 0;
 	area = *b;
 	cur = (t_block*)area->area;
 	cur->size = (size_t)space_size;
@@ -22,10 +24,9 @@ static void	create_blocks(t_area **b, int space_size, size_t i)
 	cur->area = area;
 	cur->free = 1;
 	area->blocks = cur;
-	while (++i < area->max_allocs)
+	while (++i <= area->max_allocs)
 	{
-		if (i != area->max_allocs)
-			next = (t_block*)((char*)cur + (size_t)space_size + sizeof(t_block));
+		next = (t_block *)((char *)cur->data + (size_t)space_size);
 		next->size = (size_t)space_size;
 		next->next = NULL;
 		cur->next = next;
@@ -38,12 +39,10 @@ static void	create_blocks(t_area **b, int space_size, size_t i)
 static void	area_gen(t_area *area, int space_size)
 {
 	size_t	s;
-	size_t	i;
 
-	i = 0;
 	s = area->max_block_size * area->max_allocs;
 	area->area = ft_mmap(s);
-	create_blocks(&area, space_size, i);
+	create_blocks(&area, space_size);
 }
 
 void	create_areas(void)
@@ -167,7 +166,7 @@ int	main(void)
 	printf("%p\n", &s);
 	i = -1;
 	printf("block : %d\n", sizeof(t_block));
-	while (++i < 250)
+	while (++i < 3000)
 		ft_malloc(3250);
 	char	*p = ft_malloc(4);
 	if(p)
