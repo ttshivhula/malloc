@@ -15,7 +15,7 @@ static void	create_blocks(t_area **b, int space_size, int extend)
 	t_block	*next;
 	t_area	*area;
 	size_t	i;
-	int	loop;
+	size_t	loop;
 
 	i = 0;
 	area = *b;
@@ -155,7 +155,7 @@ void	*use_block(size_t size, t_block *block)
 	return (NULL);
 }
 
-void	*ft_malloc(size_t size)
+void	*malloc(size_t size)
 {
 	void			*ptr;
 
@@ -208,7 +208,7 @@ void	fix_fragmentation(t_block *block, int type)
 	}
 }
 
-void	ft_free(void *ptr)
+void	free(void *ptr)
 {
 	t_block *b;
 	size_t	size;
@@ -253,21 +253,4 @@ void	print_blocks(t_area *a)
 		printf("free blocks: %d total bytes: %d\n", free, free_bytes);
 		a_t = a_t->next;
 	}
-}
-
-int main ()
-{
-	int i;
-	char * addr;
-
-	i = 0;
-	while (i < 1024)
-	{
-		addr = (char *)ft_malloc(1024);
-		addr [0] = 42;
-		//ft_free(addr);
-		i ++;
-	}
-	print_blocks(g_m->tiny);
-	return (0);
 }
