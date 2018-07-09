@@ -6,7 +6,7 @@
 /*   By: ttshivhu <marvin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/08 12:32:47 by ttshivhu          #+#    #+#             */
-/*   Updated: 2018/07/09 14:48:19 by ttshivhu         ###   ########.fr       */
+/*   Updated: 2018/07/09 15:51:04 by ttshivhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define MALLOC_H
 
 # include <stdio.h>
-# include <stdlib.h>
 # include <unistd.h>
 # include <sys/mman.h>
 # include <sys/time.h>
@@ -56,4 +55,6 @@ t_malloc				*g_m = NULL;
 
 t_block	*get_block(t_area **area, size_t size);
 
+extern void	*malloc(size_t size);
+extern void	free(void *ptr);
 #endif
