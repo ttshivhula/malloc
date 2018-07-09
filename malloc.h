@@ -6,7 +6,7 @@
 /*   By: ttshivhu <marvin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/08 12:32:47 by ttshivhu          #+#    #+#             */
-/*   Updated: 2018/07/08 17:47:19 by ttshivhu         ###   ########.fr       */
+/*   Updated: 2018/07/09 11:13:31 by ttshivhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 # include <sys/time.h>
 # include <sys/resource.h>
 
-# define ZONE_MAX_ALLOCS 100
+# define MAX_ALLOCS 10
 # define TINY_PAGES_PER_BLOCK 1
-# define SMALL_PAGES_PER_BLOCK 4
+# define SMALL_PAGES_PER_BLOCK 6
 
 typedef struct		s_block
 {
@@ -46,8 +46,13 @@ typedef struct		s_area
 typedef struct		s_malloc
 {
 	t_area			*tiny;
+	t_area			*small;
+	t_area			*large;
 }					t_malloc;
 
 t_malloc				*g_m = NULL;
+
+
+t_block	*get_block(t_area **area, size_t size);
 
 #endif
