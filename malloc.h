@@ -6,7 +6,7 @@
 /*   By: ttshivhu <marvin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/08 12:32:47 by ttshivhu          #+#    #+#             */
-/*   Updated: 2018/07/09 11:13:31 by ttshivhu         ###   ########.fr       */
+/*   Updated: 2018/07/09 14:48:19 by ttshivhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 # include <sys/time.h>
 # include <sys/resource.h>
 
-# define MAX_ALLOCS 10
+# define MAX_ALLOCS 100
+# define MAX_EXTEND 10
 # define TINY_PAGES_PER_BLOCK 1
 # define SMALL_PAGES_PER_BLOCK 6
 

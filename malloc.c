@@ -9,12 +9,13 @@ static void	*ft_mmap(size_t size)
 	return (ptr);
 }
 
-static void	create_blocks(t_area **b, int space_size)
+static void	create_blocks(t_area **b, int space_size, int extend)
 {
 	t_block	*cur;
 	t_block	*next;
 	t_area	*area;
 	size_t	i;
+	int	loop;
 
 	i = 0;
 	area = *b;
@@ -24,7 +25,8 @@ static void	create_blocks(t_area **b, int space_size)
 	cur->area = area;
 	cur->free = 1;
 	area->blocks = cur;
-	while (++i <= area->max_allocs)
+	loop = (extend) ? MAX_EXTEND : MAX_ALLOCS;
+	while (++i <= loop)
 	{
 		next = (t_block *)((char *)cur->data + (size_t)space_size);
 		next->size = (size_t)space_size;
@@ -36,13 +38,14 @@ static void	create_blocks(t_area **b, int space_size)
 	}
 }
 
-static void	area_gen(t_area *area, int space_size)
+static void	area_gen(t_area *area, int space_size, int extend)
 {
 	size_t	s;
 
-	s = area->max_block_size * area->max_allocs;
+	s = (extend) ? (area->max_block_size * (size_t)MAX_EXTEND) :
+		(area->max_block_size * area->max_allocs);
 	area->area = ft_mmap(s);
-	create_blocks(&area, space_size);
+	create_blocks(&area, space_size, extend);
 }
 
 static void	create_small_init_large(void)
@@ -56,8 +59,8 @@ static void	create_small_init_large(void)
 		g_m->small->max_allocs = MAX_ALLOCS;
 		g_m->small->cur_free = MAX_ALLOCS;
 		g_m->small->max_block_size = SMALL_PAGES_PER_BLOCK * pagesz;
-		g_m->tiny->next = NULL;
-		area_gen(g_m->small, g_m->small->max_block_size - sizeof(t_block));
+		g_m->small->next = NULL;
+		area_gen(g_m->small, g_m->small->max_block_size - sizeof(t_block), 0);
 	}
 	g_m->large = (t_area *)ft_mmap(sizeof(t_area));
 	g_m->large->blocks = NULL;
@@ -75,9 +78,8 @@ void	create_areas(void)
 		g_m->tiny->cur_free = MAX_ALLOCS;
 		g_m->tiny->max_block_size = TINY_PAGES_PER_BLOCK * pagesz;
 		g_m->tiny->next = NULL;
-		area_gen(g_m->tiny, g_m->tiny->max_block_size - sizeof(t_block));
+		area_gen(g_m->tiny, g_m->tiny->max_block_size - sizeof(t_block), 0);
 	}
-	create_small_init_large();
 }
 
 t_block	*extend_area(t_area **cur)
@@ -94,7 +96,7 @@ t_block	*extend_area(t_area **cur)
 		area->next->cur_free = MAX_ALLOCS;
 		area->next->max_block_size = area->max_block_size;
 		area->next->next = NULL;
-		area_gen(area->next, area->next->max_block_size - sizeof(t_block));
+		area_gen(area->next, area->next->max_block_size - sizeof(t_block), 1);
 		return (area->next->blocks);
 	}
 	return (NULL);
@@ -160,6 +162,8 @@ void	*ft_malloc(size_t size)
 	if (!(g_m))
 	{
 		g_m = (t_malloc *)ft_mmap(sizeof(t_malloc));
+		g_m->small = NULL;
+		g_m->large = NULL;
 		create_areas();
 	}
 	if (g_m->tiny->blocks && size > 0)
@@ -167,7 +171,17 @@ void	*ft_malloc(size_t size)
 		if (size <= (g_m->tiny->max_block_size - sizeof(t_block)))
 			ptr = use_block(size, get_block(&g_m->tiny, size));
 		else if (size <= (g_m->small->max_block_size - sizeof(t_block)))
+		{
+			if (!g_m->small)
+				create_small_init_large();
 			ptr = use_block(size, get_block(&g_m->small, size));
+		}
+		else
+		{
+			if (!g_m->large)
+				create_small_init_large();
+			ptr = use_block(size, get_block(&g_m->large, size));
+		}
 		if (ptr)
 			return (ptr);
 	}
@@ -180,7 +194,7 @@ void	fix_fragmentation(t_block *block, int type)
 	t_block	*tmp;
 
 	max_size = (type) ? (g_m->small->max_block_size - sizeof(t_block)) :
-			     (g_m->tiny->max_block_size - sizeof(t_block));
+		(g_m->tiny->max_block_size - sizeof(t_block));
 	if (block->next && (block->size + block->next->size < max_size) &&
 	    block->next->free)
 	{
@@ -215,39 +229,45 @@ void	ft_free(void *ptr)
 	}
 }
 
-void	print_blocks(t_block *b)
+void	print_blocks(t_area *a)
 {
+	t_area *a_t;
+	t_block *b;
+
+	a_t = a;
 	int i = 1;
-	int	free = (b) ? b->area->cur_free : 0;
-	int	free_bytes = 0;
 	printf("-- CREATED BLOCKS --\n");
-	while (b)
+	while (a_t)
 	{
-		printf("%d.  size: %d free: %d addr: %p\n", i, b->size, b->free, b);
-		if (b->free)
-			free_bytes += b->size;
-		i++;
-		b = b->next;
+		b = a_t->blocks;
+		int	free = (b) ? b->area->cur_free : 0;
+		int	free_bytes = 0;
+		while (b)
+		{
+			printf("%d.  size: %d free: %d addr: %p\n", i, b->size, b->free, b);
+			if (b->free)
+				free_bytes += b->size;
+			i++;
+			b = b->next;
+		}
+		printf("free blocks: %d total bytes: %d\n", free, free_bytes);
+		a_t = a_t->next;
 	}
-	printf("free blocks: %d total bytes: %d\n", free, free_bytes);
 }
 
-int	main(void)
+int main ()
 {
-	char	*s = ft_malloc(0);
-	int	i;
-	char	*ptr;
+	int i;
+	char * addr;
 
-	while (++i < 10)
+	i = 0;
+	while (i < 1024)
 	{
-		ptr = ft_malloc(4000);
-		ft_free(ptr);
+		addr = (char *)ft_malloc(1024);
+		addr [0] = 42;
+		//ft_free(addr);
+		i ++;
 	}
-	//ft_malloc(3000);
-	//ft_malloc(500);
-	//ft_malloc(24500);
-	print_blocks(g_m->tiny->blocks);
-	//print_blocks(g_m->small->blocks);
-	//print_blocks(g_m->large->blocks);
+	print_blocks(g_m->tiny);
 	return (0);
 }
