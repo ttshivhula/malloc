@@ -51,6 +51,7 @@ static void	area_gen(t_area *area, int space_size, int extend)
 static void	create_small_init_large(void)
 {
 	size_t pagesz;
+	extern t_malloc *g_m;
 
 	pagesz = getpagesize();
 	g_m->small = (t_area *)ft_mmap(sizeof(t_area));
@@ -69,6 +70,7 @@ static void	create_small_init_large(void)
 void	create_areas(void)
 {
 	size_t pagesz;
+	extern t_malloc *g_m;
 
 	pagesz = getpagesize();
 	g_m->tiny = (t_area *)ft_mmap(sizeof(t_area));
@@ -158,6 +160,7 @@ void	*use_block(size_t size, t_block *block)
 void	*malloc(size_t size)
 {
 	void			*ptr;
+	extern t_malloc		*g_m;
 
 	if (!(g_m))
 	{
@@ -191,6 +194,7 @@ void	*malloc(size_t size)
 void	fix_fragmentation(t_block *block, int type)
 {
 	size_t	max_size;
+	extern t_malloc *g_m;
 	t_block	*tmp;
 
 	max_size = (type) ? (g_m->small->max_block_size - sizeof(t_block)) :
@@ -212,6 +216,7 @@ void	free(void *ptr)
 {
 	t_block *b;
 	size_t	size;
+	extern t_malloc *g_m;
 
 	if (ptr)
 	{
@@ -244,7 +249,7 @@ void	print_blocks(t_area *a)
 		int	free_bytes = 0;
 		while (b)
 		{
-			printf("%d.  size: %d free: %d addr: %p\n", i, b->size, b->free, b);
+			printf("%d.  size: %d free: %d addr: %p\n", i, (int)b->size, b->free, b);
 			if (b->free)
 				free_bytes += b->size;
 			i++;

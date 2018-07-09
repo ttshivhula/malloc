@@ -6,7 +6,7 @@
 /*   By: ttshivhu <marvin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/07/08 12:32:47 by ttshivhu          #+#    #+#             */
-/*   Updated: 2018/07/09 15:51:04 by ttshivhu         ###   ########.fr       */
+/*   Updated: 2018/07/09 16:24:38 by ttshivhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef struct		s_malloc
 	t_area			*large;
 }					t_malloc;
 
-t_malloc				*g_m = NULL;
+t_malloc				*g_m;
 
 
 t_block	*get_block(t_area **area, size_t size);
